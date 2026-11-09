@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ▼▼▼ 아래 따옴표 안을 선생님 로그인 이메일로 바꾸세요 ▼▼▼
+    function isTeacher() {
+      return request.auth != null && request.auth.token.email == 'teacher@example.com';
+    }
+    // ▲▲▲ 여기까지만 고치면 됩니다 ▲▲▲
+
+    function okName(d)  { return d.name is string && d.name.size() >= 1 && d.name.size() <= 12; }
+    function okScore(d) { return d.total is int && d.total >= 0 && d.total <= 5000; }
+
+    // 학생 한 명의 자세한 결과: 본인과 선생님만 읽을 수 있어요
+    match /rooms/{room}/players/{uid} {
+      allow read: if isTeacher() || (request.auth != null && request.auth.uid == uid);
+      allow create, update: if request.auth != null && request.auth.uid == uid
+                            && okName(request.resource.data) && okScore(request.resource.data);
+      allow delete: if isTeacher();
+    }
+
+    // 순위표: 이름·번호·점수만 들어 있고, 게임에 들어온 학생이면 읽을 수 있어요
+    match /rooms/{room}/board/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+                            && okName(request.resource.data) && okScore(request.resource.data);
+      allow delete: if isTeacher();
+    }
+  }
+}

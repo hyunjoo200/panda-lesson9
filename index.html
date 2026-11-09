@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f4b">
+<title>판다의 야시장 먹방</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=Noto+Sans:wght@500;700&family=ZCOOL+KuaiLe&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 시작 화면 -->
+  <section id="startScreen" class="screen">
+    <div class="card">
+      <div class="hero" id="heroArt"></div>
+      <div class="eyebrow" id="stageLabel">중국어 탐험대 · 9차시 복습</div>
+      <h1 id="gameTitle">판다의 야시장 먹방</h1>
+      <div class="zonelist" id="zoneList"></div>
+      <div id="resumeBox" class="row" hidden>
+        <button class="btn primary" id="resumeBtn" type="button">이어서 하기</button>
+        <button class="btn ghost" id="newBtn" type="button">처음부터</button>
+      </div>
+      <div id="newBox" class="stack">
+        <label class="field" for="nameInput">내 탐험 이름
+          <input type="text" id="nameInput" maxlength="12" autocomplete="off" placeholder="예: 하늘판다">
+          <span class="help">선생님이 알려 준 이름이나 별명으로 써요. (1~12글자)</span>
+        </label>
+        <div class="row">
+          <button class="btn" id="testBtn" type="button">🔊 소리 테스트</button>
+          <span id="testResult" class="note">소리가 잘 들리는지 먼저 눌러 보세요.</span>
+        </div>
+        <button class="btn primary" id="startBtn" type="button">야시장에 가기!</button>
+      </div>
+      <a class="checklink" href="sound-check.html">소리가 안 나요? → 소리 점검하기</a>
+      <div class="controls-pic">
+        <div class="ico">▶</div><div><b>▶ 버튼</b>(PC는 → 키)을 누르고 있으면 판다가 시장 길을 걸어가요. 가게를 눌러도 그 가게로 걸어가요.</div>
+        <div class="ico">🏮</div><div>가게에 가면 점원이 <b>你想吃什么？</b> 하고 물어요. 문제를 맞히면 판다가 냠냠 먹고 배가 점점 나와요!</div>
+        <div class="ico">⭐</div><div>진열대의 <b>음식 사진</b>을 눌러 보면 이름을 들을 수 있고, 처음 누를 때 별을 받아요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 이야기 -->
+  <section id="storyScreen" class="screen" hidden>
+    <div class="card story-panel">
+      <div class="storyart" id="storyArt"></div>
+      <p class="story-text" id="storyText"></p>
+      <div class="dots" id="storyDots"></div>
+      <div class="row center">
+        <button class="btn ghost" id="skipBtn" type="button">건너뛰기</button>
+        <button class="btn primary" id="nextBtn" type="button">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 게임 -->
+  <section id="play" hidden>
+    <header id="hud">
+      <div class="scorebox"><span class="lab">학습</span><b id="learnScore">0</b></div>
+      <div class="scorebox"><span class="lab">별</span><b id="starScore">0</b></div>
+      <div class="zonebox"><span class="lab" id="zoneName">배 부름</span><div class="qdots keys" id="bells" aria-label="먹은 음식"></div></div>
+      <div class="totalbox"><span class="lab">문제</span><b id="total">0/8</b></div>
+      <div class="spacer"></div>
+      <div class="who" id="who"></div>
+      <button class="hud-btn" id="soundBtn" type="button" aria-label="소리 설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
+      <span class="netdot off" id="netDot" role="img" aria-label="이 기기에만 저장 중" title="이 기기에만 저장 중"></span>
+      <button class="hud-btn" id="rankBtn" type="button" aria-label="반 순위">🏆</button>
+      <button class="hud-btn" id="helpBtn" type="button" aria-label="도움말"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></button>
+    </header>
+    <div id="stage">
+      <div id="market" aria-label="야시장 거리"></div>
+      <div id="flash" aria-hidden="true"></div>
+      <div id="toast" role="status" aria-live="polite" hidden></div>
+    </div>
+  </section>
+
+  <!-- 퀴즈 -->
+  <section id="quiz" hidden><div class="qbox" id="qbox" role="dialog" aria-modal="true"></div></section>
+  <!-- 칸 이벤트 -->
+  <section id="evt" class="panel" hidden></section>
+  <div id="confetti" aria-hidden="true"></div>
+
+  <!-- 소리 설정 -->
+  <section id="soundPanel" class="panel" hidden>
+    <div class="card">
+      <h2>소리 설정</h2>
+      <div class="slider"><label for="volBgm">배경음악</label><input id="volBgm" type="range" min="0" max="100" value="45"><span id="volBgmV">45</span></div>
+      <div class="slider"><label for="volSfx">효과음</label><input id="volSfx" type="range" min="0" max="100" value="70"><span id="volSfxV">70</span></div>
+      <div class="slider"><label for="volVoice">중국어 소리</label><input id="volVoice" type="range" min="0" max="100" value="100"><span id="volVoiceV">100</span></div>
+      <label class="row" for="muteAll"><input type="checkbox" id="muteAll"> 모든 소리 끄기</label>
+      <p class="note" id="voiceSourceNote"></p>
+      <label class="field" for="renameInput">탐험 이름 고치기
+        <input type="text" id="renameInput" maxlength="12" autocomplete="off">
+      </label>
+      <div class="row"><button class="btn" id="renameBtn" type="button">이름 저장</button><span class="note" id="renameMsg"></span></div>
+      <button class="btn primary" id="soundClose" type="button">닫기</button>
+    </div>
+  </section>
+
+  <!-- 도움말 -->
+  <section id="helpPanel" class="panel" hidden>
+    <div class="card">
+      <h2>야시장 놀이 방법</h2>
+      <div class="controls-pic">
+        <div class="ico">▶</div><div>▶ ◀ 버튼을 누르고 있거나 → ← 키로 걸어요. 가게를 누르면 그 가게까지 걸어가요.</div>
+        <div class="ico">🏮</div><div>가게 앞에 서면 점원이 물어요. 처음에 맞히면 100점, 다시 풀어 맞히면 60점.</div>
+        <div class="ico">🥟</div><div>정답을 맞히면 판다가 그 음식을 먹어요. 마음대로 고르는 문제는 정답이 없어요!</div>
+        <div class="ico">⭐</div><div>진열대 음식 사진을 누르면 이름을 듣고, 처음 누를 때 별 +5.</div>
+        <div class="ico">🏠</div><div>가게 7곳을 다 들르면 판다네 집으로 가요.</div>
+      </div>
+      <button class="btn primary" id="helpClose" type="button">계속하기</button>
+    </div>
+  </section>
+
+  <!-- 반 순위 -->
+  <section id="rankPanel" class="panel" hidden>
+    <div class="card">
+      <h2>🏆 우리 반 순위</h2>
+      <p class="note">총점(학습 점수 + 별 점수) 순서예요. ❓는 푼 문제 수, 💤는 다 먹고 자러 간 친구예요.</p>
+      <div id="rankList"></div>
+      <button class="btn primary" id="rankClose" type="button">계속하기</button>
+    </div>
+  </section>
+
+  <!-- 종료 -->
+  <section id="endScreen" class="screen" hidden>
+    <div class="card">
+      <div class="hero" id="endArt"></div>
+      <div class="eyebrow">吃饱了!</div>
+      <h1>배불러서 쿨쿨~</h1>
+      <div class="nihao"><span class="zh">再见!</span>
+        <div class="grow"><div class="py big">zàijiàn</div><div class="note">야시장 먹방 끝! 다음 시간에 또 만나요.</div></div>
+        <button class="btn" id="byeBtn" type="button" aria-label="再见 듣기">▶</button></div>
+      <div class="scores3">
+        <div><small>학습 점수</small><b id="endLearn">0</b></div>
+        <div><small>별 점수</small><b id="endStar">0</b></div>
+        <div class="total"><small>총점</small><b id="endTotal">0</b></div>
+      </div>
+      <div class="stat"><span id="endName"></span><span id="endFirst"></span></div>
+      <p class="note center">판다가 먹은 음식</p><div class="eaten" id="endZones"></div>
+      <div class="stat"><span>보너스</span><span id="endBonus">-</span></div>
+      <div id="speedBox" class="stack"></div>
+      <div class="save" id="saveStatus"></div>
+      <div class="endrank" id="endRank" hidden><b>🏆 우리 반 순위 <span id="myRank"></span></b><div id="endRankList"></div></div>
+    </div>
+  </section>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="net.js"></script>
+<script src="game-data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
