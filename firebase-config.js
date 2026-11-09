@@ -8,12 +8,13 @@
     실제 보호는 Firebase 보안 규칙이 합니다.)
    ===================================================================== */
 window.FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: ''
+  apiKey: "AIzaSyDpqkSOPpfrcM4bmVS_C5UCQ_a2g6ptfLc",
+  authDomain: "panda-8ff49.firebaseapp.com",
+  projectId: "panda-8ff49",
+  storageBucket: "panda-8ff49.firebasestorage.app",
+  messagingSenderId: "685446665365",
+  appId: "1:685446665365:web:4da061ffcf499d96d8b79c",
+  measurementId: "G-P0WF56K2S2"
 };
 
 /* 순위표: 학생 화면에 반 친구들의 순위를 보여 줄까요? (true = 보여 줌, false = 숨김) */
